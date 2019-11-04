@@ -95,6 +95,10 @@ const fixIcons = () => {
 }
 
 module.exports = function(bundler) {
+  bundler.on('buildStart', entryPoints => {
+    fixIcons()
+  })
+
   bundler.on('buildEnd', entryPoints => {
     fixIcons()
   })
