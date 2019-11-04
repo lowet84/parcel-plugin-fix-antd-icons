@@ -80,11 +80,16 @@ const fixIcons = () => {
 
   var newFileContent = start
   newLines.forEach(n => (newFileContent = newFileContent + '\n' + n))
-  fs.writeFileSync(
+  const existing = fs.readFileSync(
     'node_modules/@ant-design/icons/lib/dist.js',
-    newFileContent,
     'utf8'
   )
+  if (existing != newFileContent)
+    fs.writeFileSync(
+      'node_modules/@ant-design/icons/lib/dist.js',
+      newFileContent,
+      'utf8'
+    )
 }
 
 module.exports = function(bundler) {
