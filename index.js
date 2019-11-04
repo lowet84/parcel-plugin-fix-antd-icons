@@ -1,5 +1,4 @@
 const fs = require('fs')
-const icons = JSON.parse(fs.readFileSync('icons.json'))
 
 const start = `
 "use strict";
@@ -45,6 +44,7 @@ function getIcon(name, theme, icon) {
 }`
 
 const fixIcons = () => {
+  const icons = JSON.parse(fs.readFileSync('icons.json'))
   if (!fs.existsSync('node_modules/@ant-design/icons/lib/dist.bak.js')) {
     console.log('Copying dist.js')
 
