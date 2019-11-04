@@ -44,43 +44,51 @@ function getIcon(name, theme, icon) {
     };
 }`
 
-if (!fs.existsSync('node_modules/@ant-design/icons/lib/dist.bak.js')) {
-  console.log('Copying dist.js')
+const fixIcons = () => {
+  if (!fs.existsSync('node_modules/@ant-design/icons/lib/dist.bak.js')) {
+    console.log('Copying dist.js')
 
-  fs.copyFileSync(
+    fs.copyFileSync(
+      'node_modules/@ant-design/icons/lib/dist.js',
+      'node_modules/@ant-design/icons/lib/dist.bak.js'
+    )
+  }
+
+  var fileContent = fs.readFileSync(
+    'node_modules/@ant-design/icons/lib/dist.bak.js',
+    'utf8'
+  )
+  var lines = fileContent.split(/\r?\n/)
+  var interestingLines = lines.filter(d => d.startsWith('exports.'))
+  var chosenLines = interestingLines.filter(d =>
+    icons.some(e => d.includes(`getIcon('${e}',`))
+  )
+  var newLines = []
+  chosenLines.forEach(line => {
+    let newLine = line
+    if (line.endsWith('));')) {
+    } else {
+      let index = lines.indexOf(line) + 1
+      while (true) {
+        var next = lines[index++]
+        newLine += next
+        if (next == '});') break
+      }
+    }
+    newLines.push(newLine)
+  })
+
+  var newFileContent = start
+  newLines.forEach(n => (newFileContent = newFileContent + '\n' + n))
+  fs.writeFileSync(
     'node_modules/@ant-design/icons/lib/dist.js',
-    'node_modules/@ant-design/icons/lib/dist.bak.js'
+    newFileContent,
+    'utf8'
   )
 }
 
-var fileContent = fs.readFileSync(
-  'node_modules/@ant-design/icons/lib/dist.bak.js',
-  'utf8'
-)
-var lines = fileContent.split(/\r?\n/)
-var interestingLines = lines.filter(d => d.startsWith('exports.'))
-var chosenLines = interestingLines.filter(d =>
-  icons.some(e => d.includes(`getIcon('${e}',`))
-)
-var newLines = []
-chosenLines.forEach(line => {
-  let newLine = line
-  if (line.endsWith('));')) {
-  } else {
-    let index = lines.indexOf(line) + 1
-    while (true) {
-      var next = lines[index++]
-      newLine += next
-      if (next == '});') break
-    }
-  }
-  newLines.push(newLine)
-})
-
-var newFileContent = start
-newLines.forEach(n => (newFileContent = newFileContent + '\n' + n))
-fs.writeFileSync(
-  'node_modules/@ant-design/icons/lib/dist.js',
-  newFileContent,
-  'utf8'
-)
+module.exports = function(bundler) {
+  bundler.on('buildStart', entryPoints => {
+    fixIcons()
+  })
+}
