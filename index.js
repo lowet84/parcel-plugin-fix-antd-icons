@@ -84,16 +84,18 @@ const fixIcons = () => {
     'node_modules/@ant-design/icons/lib/dist.js',
     'utf8'
   )
-  if (existing != newFileContent)
+  if (existing != newFileContent) {
+    console.log('updating dist.js')
     fs.writeFileSync(
       'node_modules/@ant-design/icons/lib/dist.js',
       newFileContent,
       'utf8'
     )
+  }
 }
 
 module.exports = function(bundler) {
-  bundler.on('buildStart', entryPoints => {
+  bundler.on('buildEnd', entryPoints => {
     fixIcons()
   })
 }
